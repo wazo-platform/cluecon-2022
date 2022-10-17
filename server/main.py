@@ -4,7 +4,8 @@ import os
 import requests
 from requests.auth import HTTPBasicAuth
 
-from flask import Flask, request
+from flask import Flask, request, render_template
+
 
 app = Flask(__name__)
 
@@ -17,8 +18,17 @@ def main():
     return render_template('index.html')
 
 
+@app.route('/<path:path>')
+def static_file(path):
+    return app.send_static_file(path)
+
+
 @app.route('/api/chat/tokens', methods=['POST'])
 def chan_token():
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.critical(API_KEY)
+    logger.critical(PROJECT_ID)
     response = requests.post(
         URL,
         headers = {
