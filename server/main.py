@@ -25,10 +25,6 @@ def static_file(path):
 
 @app.route('/api/chat/tokens', methods=['POST'])
 def chan_token():
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.critical(API_KEY)
-    logger.critical(PROJECT_ID)
     response = requests.post(
         URL,
         headers = {

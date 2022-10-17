@@ -11,6 +11,7 @@ RUN mkdir /server/static
 RUN mv /server/templates/assets /server/static/assets
 RUN pip install flask requests
 COPY ./server /server
+COPY ./client/src/assets/*.wav /server/static/assets/
 WORKDIR /server
 
 
