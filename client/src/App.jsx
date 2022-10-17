@@ -220,6 +220,11 @@ function App() {
      scrollBottom();
     });
 
+    client.on('session.expiring', async () => {
+      const newToken = await getToken();
+      await client.updateToken(newToken.token)
+    });
+
     let myRooms = [];
     const channels = await client.getAllowedChannels();
     for (let [key, value] of Object.entries(channels)) {
