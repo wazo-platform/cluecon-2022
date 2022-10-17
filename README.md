@@ -13,8 +13,8 @@ Then open your browser at 'http://localhost:8000'
 
 Still in progress
 
-[ ] Loby
-[ ] Participant name display
-[ ] Message deletion
-[ ] Video mode button
+- [ ] Loby
+- [ ] Participant name display
+- [ ] Message deletion
+- [ ] Video mode button
 
