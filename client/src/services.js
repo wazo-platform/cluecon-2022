@@ -4,23 +4,9 @@
 import { host } from './constants';
 
 export const playNotification = () => {
-  const audio = new Audio('/src/assets/sharp.wav');
+  const audio = new Audio('/assets/sharp.wav');
   audio.play();
 };
-
-//export const getWazoClient = () => {
-//  const client = getApiClient(host);
-//  client.setClientId('hackaton-2022-group-chat');
-
-//  // @todo refresh token mecanism
-//  return client;
-//};
-
-//export const getWazoRequester = () => new ApiRequester({
-//  server: host,
-//  clientId: 'hackaton-2022-group-chat',
-//  token: localStorage.getItem('token'),
-//});
 
 export const ascSort = (field) => (a, b) => {
   if (a?.[field] < b?.[field]) {

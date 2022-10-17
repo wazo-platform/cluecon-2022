@@ -214,9 +214,6 @@ function App() {
 
     const token = await getToken();
 
-    const members = await client.getMembers({channel:'channel-a'});
-    console.log(members);
-
     client.on('message', message => {
      setMessages((prevMessages) => [...prevMessages, message]);
      playNotification();
