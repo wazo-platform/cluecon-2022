@@ -23,6 +23,11 @@ def static_file(path):
     return app.send_static_file(path)
 
 
+@app.route('/api/chat/channels', methods=['GET'])
+def channels():
+    return ["channel-a", "channel-b"]
+
+
 @app.route('/api/chat/tokens', methods=['POST'])
 def chan_token():
     response = requests.post(

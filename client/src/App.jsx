@@ -2,7 +2,7 @@ import { createSignal, Show } from 'solid-js';
 import { createStore } from "solid-js/store";
 import { Chat } from '@signalwire/js'
 
-import { getToken } from "./services.js";
+import { getToken, listAllowedChannels } from "./services.js";
 
 import Lobby from "./Lobby";
 import Rooms from "./Rooms";
@@ -22,7 +22,8 @@ function App() {
     });
 
     client.on('session.expiring', async () => {
-      const newToken = await getToken();
+      const rooms = await listAllowedChannels(client);
+      const newToken = await getToken(formState().fullname, rooms);
       await client.updateToken(newToken.token)
     });
   };

@@ -8,7 +8,7 @@ import remarkGemoji from 'remark-gemoji';
 import 'emoji-picker-element';
 import { Chat } from '@signalwire/js'
 
-import { playNotification } from './services';
+import { playNotification, listAllowedChannels } from './services';
 
 import styles from './Rooms.module.scss';
 import CreateRoom from './CreateRoom';
@@ -136,7 +136,7 @@ export default function Rooms(props) {
     }
   };
 
-  onMount(async ()  => {
+  onMount(async () => {
     document.querySelector('emoji-picker').addEventListener('emoji-click', handleSetEmoji);
 
     client = new Chat.Client({
@@ -149,14 +149,8 @@ export default function Rooms(props) {
      scrollBottom();
     });
 
-    let myRooms = [];
-    const channels = await client.getAllowedChannels();
-    for (let [key, value] of Object.entries(channels)) {
-      myRooms.push({name: key});
-      await client.subscribe([key]);
-    }
-    setRooms(myRooms);
-
+    const rooms = await listAllowedChannels(client);
+    setRooms(rooms);
   });
 
   return (
