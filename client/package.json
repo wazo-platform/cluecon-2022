@@ -32,6 +32,7 @@
     "remark-gfm": "^3.0.1",
     "sass": "^1.55.0",
     "solid-js": "^1.5.1",
-    "solid-markdown": "^1.2.0"
+    "solid-markdown": "^1.2.0",
+    "uuid": "^9.0.0"
   }
 }

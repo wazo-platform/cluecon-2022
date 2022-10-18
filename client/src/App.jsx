@@ -1,6 +1,7 @@
 import {
   For, createSignal, Show, onMount,
 } from 'solid-js';
+import { createStore } from "solid-js/store";
 import SolidMarkdown from 'solid-markdown';
 import remarkBreaks from 'remark-breaks';
 import remarkGFM from 'remark-gfm';
@@ -12,9 +13,9 @@ import { Chat } from '@signalwire/js'
 
 import styles from './App.module.scss';
 import CreateRoom from './CreateRoom';
+import Lobby from "./Lobby";
 
 
-const isConfigurationDefined = true;
 let refFormCreateMessage;
 let refMessage;
 let refRoom;
@@ -24,61 +25,11 @@ let client;
 const PICKET_TYPE_GLOBAL = 'global';
 const PICKET_TYPE_REACTION = 'reaction';
 
-const getToken = async () => {
-
-  let chatTokenPayload = {
-    "ttl": 2000,
-    "channels": {
-      "channel-a": {
-        "read": true,
-        "write": true
-      },
-      "channel-b": {
-        "read": true,
-        "write": true
-      }
-    },
-    "member_id": "John Doe",
-    "state": {
-      "display_name": "Pascal",
-      "an_array": [
-        "foo",
-        "bar",
-        "baz"
-      ]
-    }
-  };
-
-  let config = {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify(chatTokenPayload),
-  };
-
-  const url = `http://${window.location.host}/api/chat/tokens`;
-  return fetch(url, config).then(response => response.json()).then(data => data);
-};
-
-const setClient = async () => {
-  const oToken = await getToken();
-  client = new Chat.Client({
-    token: oToken.token
-  });
-
-  return client;
-};
-
-const NotConfigured = () => (
-  <p>
-    Please defined server config in the URL:{' '}
-    <code>{window.location.origin}/?host=MY_HOST&username=MY_USERNAME&password=MY_PASSWORD</code>
-  </p>
-);
-
 function App() {
+  const [formState, setFormState] = createStore({
+    identity: "",
+    room: ""
+  });
   const [currentUser, setCurrentUser] = createSignal(null);
   const [showCreateRoom, setShowCreateRoom] = createSignal(false);
 
@@ -89,6 +40,7 @@ function App() {
   const [room, setRoom] = createSignal(null);
   const [messages, setMessages] = createSignal(null);
   const [currentMessage, setCurrentMessage] = createSignal(null);
+  const [token, setToken] = createSignal(null);
 
   const closeEmojiPicker = (e) => {
     // If manipulating emoji-picker, ignore close
@@ -178,24 +130,11 @@ function App() {
     setShowCreateRoom(true);
   };
 
-  const handleMessageClick = (e, message) => {
-    if (e?.target?.href?.indexOf('https://') || e?.target?.href?.indexOf('http://')) {
-      return;
-    }
-
-    e.preventDefault();
-    setCurrentMessage(message);
-
-    if (e.target.classList.contains('message-reaction')) {
-      setPickerType(PICKET_TYPE_REACTION);
-      handleSetEmoji(null, e.target.innerText);
-    }
-  };
-
-  onMount(async () => {
+  const userLogged = async (e) => {
     document.querySelector('emoji-picker').addEventListener('emoji-click', handleSetEmoji);
-
-    client = await setClient();
+    client = new Chat.Client({
+      token: token()
+    });
 
     client.on('message', message => {
      setMessages((prevMessages) => [...prevMessages, message]);
@@ -216,10 +155,32 @@ function App() {
     }
     setRooms(myRooms);
 
-   });
+  };
+
+  const handleMessageClick = (e, message) => {
+    if (e?.target?.href?.indexOf('https://') || e?.target?.href?.indexOf('http://')) {
+      return;
+    }
+
+    e.preventDefault();
+    setCurrentMessage(message);
+
+    if (e.target.classList.contains('message-reaction')) {
+      setPickerType(PICKET_TYPE_REACTION);
+      handleSetEmoji(null, e.target.innerText);
+    }
+  };
 
   return (
-    <Show when={isConfigurationDefined} fallback={<NotConfigured />}>
+    <Show when={token() !== null} fallback={
+        <Lobby
+          formState={formState}
+          setFormState={setFormState}
+          token={token}
+          setToken={setToken}
+          handleFormSubmit={userLogged}
+        />
+      }>
       <div class={styles.page}>
         <div class={styles.rooms}>
           <button onClick={toggleCreateRoom}>
@@ -249,7 +210,7 @@ function App() {
                   }}
                   onClick={(e) => handleMessageClick(e, message)}
                 >
-                  <p class={styles.roomMessageAuthor}>{message.member.id}{message.publishedAt}</p>
+                  <p class={styles.roomMessageAuthor}>{message.member.state.displayName} - {message.publishedAt.toString()}</p>
                   <SolidMarkdown
                     class={styles.roomMessageContent}
                     children={message.content}
