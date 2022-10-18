@@ -5,22 +5,20 @@ import SolidMarkdown from 'solid-markdown';
 import remarkBreaks from 'remark-breaks';
 import remarkGFM from 'remark-gfm';
 import remarkGemoji from 'remark-gemoji';
-import { Chat } from '@signalwire/js'
 import 'emoji-picker-element';
 
 import { playNotification } from './services';
+import { Chat } from '@signalwire/js'
 
 import styles from './App.module.scss';
 import CreateRoom from './CreateRoom';
 
 
-const expiration = 60 * 60;
 const isConfigurationDefined = true;
 let refFormCreateMessage;
 let refMessage;
 let refRoom;
 let refEmojiPicker;
-let ws;
 let client;
 
 const PICKET_TYPE_GLOBAL = 'global';
@@ -64,11 +62,14 @@ const getToken = async () => {
   return fetch(url, config).then(response => response.json()).then(data => data);
 };
 
-getToken().then(token => {
+const setClient = async () => {
+  const oToken = await getToken();
   client = new Chat.Client({
-    token: token.token
+    token: oToken.token
   });
-});
+
+  return client;
+};
 
 const NotConfigured = () => (
   <p>
@@ -109,24 +110,6 @@ function App() {
       refMessage.value = `${refMessage.value} ${emojiChar}`;
       refMessage.focus();
       return;
-    }
-
-    if (pickerType() === PICKET_TYPE_REACTION) {
-      const requester = getWazoRequester();
-      const userUuid = localStorage.getItem('currentUserUuid');
-      const alreadyReacted = currentMessage()?.reactions.some(
-        (reaction) => reaction.user_uuid === userUuid && reaction.emoji === emojiChar,
-      );
-
-      const reactionMethod = alreadyReacted ? 'delete' : 'post';
-      const reactionUrlExtra = reactionMethod === 'delete' ? `?emoji=${emojiChar}` : '';
-      const reactionUrl = `chatd/1.0/users/${userUuid}/rooms/${room().uuid}/messages/${
-        currentMessage().uuid
-      }/reactions${reactionUrlExtra}`;
-      const reactionPayload = {
-        emoji: emojiChar,
-      };
-      requester.call(reactionUrl, reactionMethod, reactionPayload);
     }
   };
 
@@ -212,7 +195,7 @@ function App() {
   onMount(async () => {
     document.querySelector('emoji-picker').addEventListener('emoji-click', handleSetEmoji);
 
-    const token = await getToken();
+    client = await setClient();
 
     client.on('message', message => {
      setMessages((prevMessages) => [...prevMessages, message]);
@@ -266,16 +249,13 @@ function App() {
                   }}
                   onClick={(e) => handleMessageClick(e, message)}
                 >
-                  <p class={styles.roomMessageAuthor}>{message.alias}</p>
+                  <p class={styles.roomMessageAuthor}>{message.member.id}{message.publishedAt}</p>
                   <SolidMarkdown
                     class={styles.roomMessageContent}
                     children={message.content}
                     linkTarget="_blank"
                     remarkPlugins={[remarkBreaks, remarkGFM, remarkGemoji]}
                   />
-                  <button id="add-reaction" class={styles.buttonEmoji} onClick={toggleEmojiPicker}>
-                    😀
-                  </button>
                 </div>
               )}
             </For>
