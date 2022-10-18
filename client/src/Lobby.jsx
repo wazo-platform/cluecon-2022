@@ -1,4 +1,5 @@
-import { v4 as uuidv4 } from 'uuid';
+import { getToken } from './services.js';
+
 
 export default function Lobby(props) {
   
@@ -16,36 +17,7 @@ export default function Lobby(props) {
     const fullname = event.currentTarget[0].value;
     const rommName = event.currentTarget[1].value;
 
-    let chatTokenPayload = {
-      "ttl": 2000,
-      "channels": {
-        "channel-a": {
-          "read": true,
-          "write": true
-        },
-        "channel-b": {
-          "read": true,
-          "write": true
-        }
-      },
-      "member_id": uuidv4(),
-      "state": {
-        "display_name": fullname,
-      }
-    };
-
-    let config = {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(chatTokenPayload),
-    };
-
-    const url = `http://${window.location.host}/api/chat/tokens`;
-    const data = await fetch(url, config);
-    const res = await data.json();
+    const res = await getToken(fullname);
     await props.setToken(res.token);
     props.handleFormSubmit();
   };
