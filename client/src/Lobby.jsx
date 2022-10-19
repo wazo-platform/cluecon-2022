@@ -1,5 +1,5 @@
 import { createSignal, onMount } from 'solid-js';
-import { getToken, getChannels } from './services.js';
+import { getToken, getChannels, addChannel } from './services.js';
 
 
 export default function Lobby(props) {
@@ -18,10 +18,18 @@ export default function Lobby(props) {
 
     const fullname = event.currentTarget[0].value;
     const channels = event.target[1];
+    const room = event.currentTarget[2].value;
 
     const chans = [];
+    if (room) {
+      await addChannel(room);
+      chans.push(room);
+    }
+
     for (const channel of channels) {
-      chans.push(channel.value);
+      if (channel.selected) {
+        chans.push(channel.value);
+      }
     }
 
     const res = await getToken(fullname, chans);
@@ -37,24 +45,23 @@ export default function Lobby(props) {
   return(
     <form onSubmit={handleSubmit} action="POST">
         <label>
-          Username 
-          <input 
-            type="text" 
+          Username
+          <input
+            type="text"
             placeholder="Username"
-            onChange={(evt) => handleChange(evt)} 
-            name="fullname" 
+            onChange={(evt) => handleChange(evt)}
+            name="fullname"
             id="fullname"
             required
           />
         </label>
         <label>
-          Room Name 
+          Rooms Name
           <select
-            placeholder="Room Name"
-            onChange={(evt) => handleChange(evt)} 
-            name="room" 
-            id="room"
-            required
+            placeholder="Rooms Name"
+            onChange={(evt) => handleChange(evt)}
+            name="rooms"
+            id="rooms"
             multiple
           >
           <For each={channels()} fallback={<div>Empty Chat...</div>}>
@@ -63,6 +70,17 @@ export default function Lobby(props) {
             )}
           </For>
           </select>
+        </label>
+        Or create room
+        <label>
+          Room Name
+          <input
+            type="text"
+            placeholder="Room Name"
+            onChange={(evt) => handleChange(evt)}
+            name="room"
+            id="room
+          />
         </label>
       <input type="submit" value="Submit" />
     </form>

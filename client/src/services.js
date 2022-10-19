@@ -47,6 +47,25 @@ export const getChannels = async () => {
   return await data.json();
 }
 
+export const addChannel = async (room) => {
+  const payload = {
+    "room": room,
+  };
+
+  let config = {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(payload),
+  };
+
+  const url = `http://${window.location.host}/api/chat/channels`;
+  const data = await fetch(url, config);
+  return await data.json();
+}
+
 export const listAllowedChannels = async (client) => {
   let myRooms = [];
   const channels = await client.getAllowedChannels();
