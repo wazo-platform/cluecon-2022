@@ -44,44 +44,44 @@ export default function Lobby(props) {
 
   return(
     <form onSubmit={handleSubmit} action="POST">
-        <label>
-          Username
-          <input
-            type="text"
-            placeholder="Username"
-            onChange={(evt) => handleChange(evt)}
-            name="fullname"
-            id="fullname"
-            required
-          />
-        </label>
-        <label>
-          Rooms Name
-          <select
-            placeholder="Rooms Name"
-            onChange={(evt) => handleChange(evt)}
-            name="rooms"
-            id="rooms"
-            multiple
-          >
+      <label>
+        Username
+        <input
+          type="text"
+          placeholder="Username"
+          onChange={(evt) => handleChange(evt)}
+          name="fullname"
+          id="fullname"
+          required
+        />
+      </label>
+      <label>
+        Rooms Name
+        <select
+          placeholder="Rooms Name"
+          onChange={(evt) => handleChange(evt)}
+          name="rooms"
+          id="rooms"
+          multiple
+        >
           <For each={channels()} fallback={<div>Empty Chat...</div>}>
             {(channel) => (
               <option value={channel}>{channel}</option>
             )}
           </For>
-          </select>
-        </label>
-        Or create room
-        <label>
-          Room Name
-          <input
-            type="text"
-            placeholder="Room Name"
-            onChange={(evt) => handleChange(evt)}
-            name="room"
-            id="room
-          />
-        </label>
+        </select>
+      </label>
+      Or create room
+      <label>
+        Room Name
+        <input
+          type="text"
+          placeholder="Room Name"
+          onChange={(evt) => handleChange(evt)}
+          name="room"
+          id="room"
+        />
+      </label>
       <input type="submit" value="Submit" />
     </form>
   );
