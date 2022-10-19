@@ -2,15 +2,15 @@
 
 import os
 import requests
-import memcache
 from flask import request
 from requests.auth import HTTPBasicAuth
+from tinydb import TinyDB, Query
 
 from flask import Flask, request, render_template
 
 
 app = Flask(__name__)
-mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+db = TinyDB('db.json')
 
 URL = 'https://wazo.signalwire.com/api/chat/tokens'
 PROJECT_ID = os.getenv('SIGNALWIRE_PROJECT_ID')
@@ -28,21 +28,26 @@ def static_file(path):
 
 @app.route('/api/chat/channels', methods=['GET'])
 def channels():
-    rooms = mc.get("rooms")
-    return rooms
+    rooms = db.all()
+    return rooms[0].get("rooms")
 
 
 @app.route('/api/chat/channels', methods=['POST'])
 def add_channels():
     room = request.json.get('room')
-    rooms = mc.get("rooms")
-    if room in rooms:
+    rooms = db.all()
+    for r in rooms:
+      if room in r.get("rooms"):
         return ['Already exist']
+
     if rooms:
-        rooms.append(room);
+        rooms[0]["rooms"].append(room);
     else:
-        rooms = [room]
-    mc.set("rooms", rooms)
+        rooms.append({"rooms": [room]})
+    if rooms[0].doc_id == 1:
+        db.update(rooms[0])
+    else:
+        db.insert(rooms[0])
     return rooms
 
 
