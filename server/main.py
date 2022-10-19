@@ -30,7 +30,10 @@ def static_file(path):
 @app.route('/api/chat/channels', methods=['GET'])
 def channels():
     rooms = db.all()
-    return rooms[0].get("rooms")
+    if rooms:
+        return rooms[0].get("rooms")
+    else:
+        return []
 
 
 @app.route('/api/chat/channels', methods=['POST'])
@@ -45,7 +48,7 @@ def add_channels():
         rooms[0]["rooms"].append(room);
     else:
         rooms.append({"rooms": [room]})
-    if rooms[0].doc_id == 1:
+    if len(rooms) > 1 and rooms[0].doc_id == 1:
         db.update(rooms[0])
     else:
         db.insert(rooms[0])
