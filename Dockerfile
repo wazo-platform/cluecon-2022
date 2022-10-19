@@ -9,7 +9,7 @@ COPY --from=compile-image /app/dist /server/templates
 
 RUN mkdir /server/static
 RUN mv /server/templates/assets /server/static/assets
-RUN pip install flask requests
+RUN pip install flask requests tinydb
 COPY ./server /server
 COPY ./client/src/assets/*.wav /server/static/assets/
 WORKDIR /server
