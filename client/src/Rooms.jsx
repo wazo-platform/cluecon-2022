@@ -110,6 +110,14 @@ export default function Rooms(props) {
     }, 250);
   };
 
+  const disconnect = async (e) => {
+    e?.preventDefault();
+
+    await client.disconnect();
+    client.removeAllListeners();
+    props.setToken(null);
+  };
+
   const toggleCreateRoom = (e) => {
     e?.preventDefault();
 
@@ -149,6 +157,16 @@ export default function Rooms(props) {
      scrollBottom();
     });
 
+    client.on('member.joined', member => {
+     const message = `${member.state.displayName} joined the channel`;
+     console.log(message);
+    });
+
+    client.on('member.left', member => {
+     const message = `${member.state.displayName} left the channel`;
+     console.log(message);
+    });
+
     const rooms = await listAllowedChannels(client);
     setRooms(rooms);
   });
@@ -170,6 +188,9 @@ export default function Rooms(props) {
             </button>
           )}
         </For>
+        <button onClick={disconnect}>
+          <strong>Disconnect</strong>
+        </button>
       </div>
 
       <div ref={refRoom} class={styles.room}>

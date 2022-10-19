@@ -30,7 +30,10 @@ function App() {
 
   return (
     <Show when={token() === null} fallback={
-      <Rooms token={token}/>
+      <Rooms
+        token={token}
+        setToken={setToken}
+      />
     }>
       <Lobby
         formState={formState}
