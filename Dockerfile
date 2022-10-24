@@ -13,6 +13,7 @@ RUN pip install flask requests tinydb
 COPY ./server /server
 COPY ./client/src/assets/*.wav /server/static/assets/
 WORKDIR /server
+EXPOSE 5000
 
 
 CMD ["flask", "--app", "main",  "run", "--host", "0.0.0.0"]
